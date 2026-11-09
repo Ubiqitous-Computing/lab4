@@ -1,0 +1,48 @@
+{
+  "recipes": [
+    {
+      "name": "Pancakes",
+      "ingredients": [
+        "Flour",
+        "Milk",
+        "Eggs"
+      ],
+      "method": "Mix ingredients, cook in pan"
+    },
+    {
+      "name": "Omelette",
+      "ingredients": [
+        "Eggs",
+        "Spinach",
+        "Butter"
+      ],
+      "method": "Put the eggs in the pan"
+    },
+    {
+      "name": "Rice",
+      "ingredients": [
+        "Jasmine Rice",
+        "Water"
+      ],
+      "method": "Put rice in rice cooker, add some water and turn it on"
+    },
+    {
+      "name": "Ham & Cheese Toastie",
+      "ingredients": [
+        "Bread",
+        "Ham",
+        "Cheese"
+      ],
+      "method": "Bread, then ham on top, then cheese"
+    },
+    {
+      "name": "Mash Potatoes",
+      "ingredients": [
+        "Marsh Potatoes",
+        "Milk",
+        "Butter"
+      ],
+      "method": "Boil Potatoes in hot water, drain water, then mash up. Add Milk, Mix, then add your Butter"
+    }
+  ]
+}

@@ -15,6 +15,7 @@ import org.json.JSONException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 public class RecipeListFragment extends Fragment {
 
@@ -58,14 +59,35 @@ public class RecipeListFragment extends Fragment {
         // Step 2: Find ListView
         ListView recipeListView = view.findViewById(R.id.recipeListView);
 
-        // Step 3: Create recipe names
-        String[] recipes = {
-                "Pancakes",
-                "Omelette",
-                "Rice",
-                "Ham & Cheese Toastie",
-                "Mash Potatoes"
-        };
+        // Step 3: Connect recipe strings with ones from xml
+        ArrayList<String> recipes = new ArrayList<>();
+
+        try {
+            // Step a: Read the JSON file
+            String jsonString = loadJSONFromAsset();
+
+            // Step b: Convert String into JSONObject
+            JSONObject jsonObject = new JSONObject(jsonString);
+
+            // Step c: Get the recipes array
+            JSONArray recipesArray = jsonObject.getJSONArray("recipes");
+
+            // Step d: Loop through each recipe
+            for (int i = 0; i < recipesArray.length(); i++) {
+
+                JSONObject recipe = recipesArray.getJSONObject(i);
+
+                // Step e: Extract the recipe name
+                String name = recipe.getString("name");
+
+                // Step f: Add the name to our list
+                recipes.add(name);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
         // Step 4: Create ArrayAdapter
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -95,9 +117,6 @@ public class RecipeListFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
-        }
-    }
-
         }
     }
 }

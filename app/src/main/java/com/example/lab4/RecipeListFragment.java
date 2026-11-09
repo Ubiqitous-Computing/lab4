@@ -8,6 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
+
+import java.io.InputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class RecipeListFragment extends Fragment {
 
@@ -71,5 +78,26 @@ public class RecipeListFragment extends Fragment {
         recipeListView.setAdapter(adapter);
 
         return view;
+    }
+
+    // Grab recipeList.xml
+    private String loadJSONFromAsset() {
+        try {
+            InputStream inputStream = requireContext().getAssets().open("recipes.json");
+
+            byte[] buffer = new byte[inputStream.available()];
+
+            inputStream.read(buffer);
+            inputStream.close();
+
+            return new String(buffer, StandardCharsets.UTF_8);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+        }
     }
 }

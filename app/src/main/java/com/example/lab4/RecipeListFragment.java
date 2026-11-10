@@ -1,6 +1,7 @@
 
 package com.example.lab4;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.fragment.app.Fragment;
@@ -73,25 +74,44 @@ public class RecipeListFragment extends Fragment {
         recipeListView.setAdapter(adapter);
 
         // Step 6: Detect which recipe was clicked
+
+        // Step 6: Detect which recipe was clicked
         recipeListView.setOnItemClickListener((parent, view1, position, id) -> {
 
-            // Create the detail Fragment
-            RecipeDetailFragment detailFragment = new RecipeDetailFragment();
+            // Check if the landscape detail container exists
+            boolean isLandscape =
+                    requireActivity().findViewById(R.id.detail_container) != null;
 
-            // Store the selected recipe position
-            Bundle args = new Bundle();
-            args.putInt("recipePosition", position);
+            if (isLandscape) {
 
-            // Pass the position to the Fragment
-            detailFragment.setArguments(args);
+                // Create the detail Fragment
+                RecipeDetailFragment detailFragment = new RecipeDetailFragment();
 
-            // Display the detail Fragment
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, detailFragment)
-                    .addToBackStack(null)
-                    .commit();
+                // Store the selected recipe position
+                Bundle args = new Bundle();
+                args.putInt("recipePosition", position);
+
+                // Pass the position to the Fragment
+                detailFragment.setArguments(args);
+
+                // Display recipe details on the right side
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.detail_container, detailFragment)
+                        .commit();
+
+            } else {
+
+                // Open a separate Activity in portrait mode
+                Intent intent = new Intent(requireContext(), DetailActivity.class);
+
+                // Pass the selected recipe position
+                intent.putExtra("recipePosition", position);
+
+                startActivity(intent);
+            }
         });
+
 
         return view;
     }

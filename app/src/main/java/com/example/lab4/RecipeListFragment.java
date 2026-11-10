@@ -2,50 +2,29 @@
 package com.example.lab4;
 
 import android.os.Bundle;
+import android.util.Log;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class RecipeListFragment extends Fragment {
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private String mParam2;
-
     public RecipeListFragment() {
         // Required empty public constructor
-    }
-
-    public static RecipeListFragment newInstance(String param1, String param2) {
-        RecipeListFragment fragment = new RecipeListFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     // Creates Fragment's user interface from XML layout
@@ -59,7 +38,7 @@ public class RecipeListFragment extends Fragment {
         // Step 2: Find ListView
         ListView recipeListView = view.findViewById(R.id.recipeListView);
 
-        // Step 3: Connect recipe strings with ones from xml
+        // Step 3: Create a list to store recipe names from JSON
         ArrayList<String> recipes = new ArrayList<>();
 
         try {
@@ -84,10 +63,12 @@ public class RecipeListFragment extends Fragment {
                 recipes.add(name);
             }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException | IOException e) {
+            Log.e("RecipeListFragment", "Error loading recipes", e);
+            Toast.makeText(requireContext(),
+                    "Could not load recipes",
+                    Toast.LENGTH_SHORT).show();
         }
-
 
         // Step 4: Create ArrayAdapter
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -99,24 +80,47 @@ public class RecipeListFragment extends Fragment {
         // Step 5: Display recipes in ListView
         recipeListView.setAdapter(adapter);
 
+        // Step 6: Detect which recipe was clicked
+        recipeListView.setOnItemClickListener((parent, view1, position, id) -> {
+
+            // Create the detail Fragment
+            RecipeDetailFragment detailFragment = new RecipeDetailFragment();
+
+            // Store the selected recipe position
+            Bundle args = new Bundle();
+            args.putInt("recipePosition", position);
+
+            // Pass the position to the Fragment
+            detailFragment.setArguments(args);
+
+            // Display the detail Fragment
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, detailFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+
         return view;
     }
 
-    // Grab recipeList.xml
-    private String loadJSONFromAsset() {
-        try {
-            InputStream inputStream = requireContext().getAssets().open("recipes.json");
+    // Read recipes.json from the assets folder
+    private String loadJSONFromAsset() throws IOException {
 
-            byte[] buffer = new byte[inputStream.available()];
+        try (InputStream inputStream =
+                     requireContext().getAssets().open("recipes.json");
 
-            inputStream.read(buffer);
-            inputStream.close();
+             ByteArrayOutputStream outputStream =
+                     new ByteArrayOutputStream()) {
 
-            return new String(buffer, StandardCharsets.UTF_8);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            return outputStream.toString(StandardCharsets.UTF_8.name());
         }
     }
 }

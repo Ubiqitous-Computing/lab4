@@ -20,6 +20,5 @@ public class MainActivity extends AppCompatActivity {
                     // Also creates an instance of our fragment
                     .commit(); // Submits the transaction
         }
-
     }
 }

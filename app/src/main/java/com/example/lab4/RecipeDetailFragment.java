@@ -8,15 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 
-import java.io.InputStream;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
 
 public class RecipeDetailFragment extends Fragment {
 
@@ -46,36 +44,40 @@ public class RecipeDetailFragment extends Fragment {
         }
 
         try {
-            // Step 4: Open recipes.json
-            InputStream inputStream = requireContext()
-                    .getAssets()
-                    .open("recipes.json");
+            // Step 4: Get the recipes array using RecipeData
+            JSONArray recipesArray = RecipeData.getRecipes(requireContext());
 
-            // Step 5: Read the JSON file
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-
-            inputStream.close();
-
-            // Step 6: Convert file contents into a String
-            String jsonString = outputStream.toString(StandardCharsets.UTF_8.name());
-
-            // Step 7: Convert String into JSONObject
-            JSONObject jsonObject = new JSONObject(jsonString);
-
-            // Step 8: Get the recipes array
-            JSONArray recipesArray = jsonObject.getJSONArray("recipes");
-
-            // Step 9: Get the selected recipe
+            // Step 5: Get the selected recipe
             JSONObject selectedRecipe = recipesArray.getJSONObject(position);
 
+            // Step 6: Extract the recipe name
+            String name = selectedRecipe.getString("name");
+
+            // Step 7: Extract the ingredients
+            JSONArray ingredientsArray = selectedRecipe.getJSONArray("ingredients");
+
+            StringBuilder ingredients = new StringBuilder("Ingredients:\n");
+
+            for (int i = 0; i < ingredientsArray.length(); i++) {
+                ingredients.append("• ")
+                        .append(ingredientsArray.getString(i))
+                        .append("\n");
+            }
+
+            // Step 8: Extract the cooking method
+            String method = selectedRecipe.getString("method");
+
+            // Step 9: Display the recipe information
+            recipeName.setText(name);
+            recipeIngredients.setText(ingredients.toString());
+            recipeMethod.setText("Method:\n" + method);
+
         } catch (IOException | JSONException e) {
-            Log.e("RecipeDetailFragment", "Error reading recipe", e);
+            Log.e("RecipeDetailFragment", "Error loading recipe details", e);
+
+            Toast.makeText(requireContext(),
+                    "Could not load recipe details",
+                    Toast.LENGTH_SHORT).show();
         }
 
         return view;

@@ -15,10 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 
-import java.io.InputStream;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class RecipeListFragment extends Fragment {
@@ -42,35 +39,24 @@ public class RecipeListFragment extends Fragment {
         ArrayList<String> recipes = new ArrayList<>();
 
         try {
-            // Step a: Read the JSON file
-            String jsonString = loadJSONFromAsset();
+            // Step a: Get the recipes array using RecipeData
+            JSONArray recipesArray = RecipeData.getRecipes(requireContext());
 
-            if (jsonString == null) {
-                Log.e("RecipeListFragment", "JSON file could not be loaded");
-                return view;
-            }
-
-
-            // Step b: Convert String into JSONObject
-            JSONObject jsonObject = new JSONObject(jsonString);
-
-            // Step c: Get the recipes array
-            JSONArray recipesArray = jsonObject.getJSONArray("recipes");
-
-            // Step d: Loop through each recipe
+            // Step b: Loop through each recipe
             for (int i = 0; i < recipesArray.length(); i++) {
 
                 JSONObject recipe = recipesArray.getJSONObject(i);
 
-                // Step e: Extract the recipe name
+                // Step c: Extract the recipe name
                 String name = recipe.getString("name");
 
-                // Step f: Add the name to our list
+                // Step d: Add the name to our list
                 recipes.add(name);
             }
 
         } catch (JSONException | IOException e) {
             Log.e("RecipeListFragment", "Error loading recipes", e);
+
             Toast.makeText(requireContext(),
                     "Could not load recipes",
                     Toast.LENGTH_SHORT).show();
@@ -108,25 +94,5 @@ public class RecipeListFragment extends Fragment {
         });
 
         return view;
-    }
-
-    // Read recipes.json from the assets folder
-    private String loadJSONFromAsset() throws IOException {
-
-        try (InputStream inputStream =
-                     requireContext().getAssets().open("recipes.json");
-
-             ByteArrayOutputStream outputStream =
-                     new ByteArrayOutputStream()) {
-
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-
-            return outputStream.toString(StandardCharsets.UTF_8.name());
-        }
     }
 }

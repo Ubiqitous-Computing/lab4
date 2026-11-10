@@ -45,6 +45,12 @@ public class RecipeListFragment extends Fragment {
             // Step a: Read the JSON file
             String jsonString = loadJSONFromAsset();
 
+            if (jsonString == null) {
+                Log.e("RecipeListFragment", "JSON file could not be loaded");
+                return view;
+            }
+
+
             // Step b: Convert String into JSONObject
             JSONObject jsonObject = new JSONObject(jsonString);
 
